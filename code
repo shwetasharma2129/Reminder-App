@@ -1,0 +1,54 @@
+import time
+import schedule
+from plyer import notification
+import tkinter as tk
+from tkinter import messagebox
+
+# Function to send a desktop notification
+def send_notification(message):
+    notification.notify(
+        title="Reminder Alert!",
+        message=message,
+        timeout=10
+    )
+    print(f"Reminder: {message}")
+
+# Function to schedule a reminder
+def schedule_reminder(message, delay):
+    schedule.every(delay).seconds.do(send_notification, message)
+    messagebox.showinfo("Reminder Set", f"Reminder '{message}' set for {delay} seconds.")
+
+# Function to add a reminder from the GUI
+def add_reminder():
+    message = message_entry.get()
+    delay = int(delay_entry.get())
+    schedule_reminder(message, delay)
+
+# Tkinter window setup
+root = tk.Tk()
+root.title("Reminder App")
+
+# GUI Elements
+tk.Label(root, text="Reminder Message:").grid(row=0, column=0, padx=10, pady=10)
+message_entry = tk.Entry(root, width=30)
+message_entry.grid(row=0, column=1, padx=10, pady=10)
+
+tk.Label(root, text="Delay (in seconds):").grid(row=1, column=0, padx=10, pady=10)
+delay_entry = tk.Entry(root, width=10)
+delay_entry.grid(row=1, column=1, padx=10, pady=10)
+
+tk.Button(root, text="Set Reminder", command=add_reminder).grid(row=2, column=0, columnspan=2, pady=10)
+
+# Run the scheduler continuously
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+# Start the scheduler in a separate thread
+import threading
+scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+scheduler_thread.start()
+
+# Start the GUI loop
+root.mainloop()
